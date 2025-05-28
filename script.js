@@ -125,8 +125,9 @@ async function handleCellClick(event) {
   }
 
   // AI move or switch to next player
-  if (gameState.isAIMode && gameState.currentPlayer === "O") {
+  if (gameState.isAIMode && gameState.gameActive) {
     gameState.gameActive = false;
+    gameState.currentPlayer = "O";
     statusDisplay.textContent = "AI is thinking...";
 
     await new Promise((resolve) => setTimeout(resolve, 500));
@@ -136,10 +137,12 @@ async function handleCellClick(event) {
     updateCell(aiCell, aiMove);
     sounds.move.play().catch((e) => console.log("Sound play failed:", e));
 
-    checkGameResult();
-    gameState.currentPlayer = "X";
-    gameState.gameActive = true;
-  } else {
+    if (!checkGameResult() && gameState.board.includes("")) {
+      gameState.currentPlayer = "X";
+      gameState.gameActive = true;
+      statusDisplay.textContent = "Your turn (X)";
+    }
+  } else if (!gameState.isAIMode) {
     gameState.currentPlayer = gameState.currentPlayer === "X" ? "O" : "X";
     statusDisplay.textContent = `Player ${gameState.currentPlayer}'s turn`;
   }
